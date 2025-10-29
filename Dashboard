@@ -1,0 +1,208 @@
+import ipywidgets as widgets
+from IPython.display import display, Markdown, clear_output
+import random
+
+# 🔐 Encryption algorithm recommendations and protections
+ENCRYPTION_ALGORITHMS = {
+    "Spoofing": ["AES", "RSA", "SSL/TLS"],
+    "Phishing": ["AES", "RSA", "ECC"],
+    "DDoS": ["IPSec", "SSL/TLS"],
+    "SQL Injection": ["AES", "RSA"],
+    "Brute Force": ["RSA"],
+    "Zero-Day Exploit": ["RSA", "ECC", "AES"],
+    "Man-in-the-Middle": ["SSL/TLS", "RSA", "ECC"],
+    "XSS": ["Content Security Policy", "Input Sanitization", "WAF"],
+    "DNS Spoofing": ["DNSSEC", "SSL/TLS"],
+    "Privilege Escalation": ["Access Control", "RBAC", "Audit Logs"],
+    "Ransomware": ["AES", "Blowfish", "RSA"],
+    "Trojan": ["AES", "RSA"],
+    "Botnet": ["SSL/TLS", "AES"],
+    "Insider Threat": ["Zero Trust", "RBAC", "Monitoring"],
+    "Supply Chain Attack": ["Code Signing", "SBOM", "Access Control"]
+}
+
+# 📚 Full attack descriptions (expanded)
+ATTACK_DESCRIPTIONS = {
+    "Spoofing": (
+        "Spoofing is a deceptive cyber technique where an attacker pretends to be someone or something else to gain unauthorized access. "
+        "For example, in IP spoofing, an attacker falsifies the source IP address in packets to make them appear from a trusted source. "
+        "This can bypass firewalls or redirect traffic. In email spoofing, fake email headers make messages seem like they're from someone you know. "
+        "The attack works because people and systems trust the false identity, opening the door for data theft or further attacks like phishing or MITM."
+    ),
+    "Phishing": (
+        "Phishing is a social engineering attack where malicious actors disguise themselves as trustworthy sources (e.g., banks or companies) to trick users. "
+        "This typically happens through fake emails or websites asking users to input personal data, like passwords or credit card info. "
+        "Phishing preys on urgency or fear—'your account is suspended, click here to restore it'—and it often spreads malware or steals credentials."
+    ),
+    "DDoS": (
+        "A Distributed Denial of Service (DDoS) attack overwhelms a website or server with an immense volume of fake requests, often from a large network of infected devices (botnet). "
+        "This floods the system with traffic, crashing it or making it unusable for real users. The purpose is disruption—shutting down operations, hurting business, or distracting from other attacks."
+    ),
+    "SQL Injection": (
+        "SQL Injection targets websites that don’t properly check user input. Attackers insert malicious SQL queries into text fields (like login boxes) to access or manipulate the database. "
+        "For instance, instead of typing a username, an attacker could enter `' OR '1'='1` to trick the system into logging them in without valid credentials. "
+        "It can be used to steal, delete, or corrupt data."
+    ),
+    "Brute Force": (
+        "A brute force attack is a basic but powerful technique where attackers guess passwords or encryption keys by trying all possible combinations. "
+        "It’s automated and relentless, often using dictionaries of common passwords. "
+        "If a user’s password is weak or reused, brute force can break in quickly, especially if no rate limits or account lockouts are in place."
+    ),
+    "Zero-Day Exploit": (
+        "Zero-day exploits are attacks on software vulnerabilities that developers don’t know about yet—so there's no patch available. "
+        "Because no one is prepared for them, they’re extremely dangerous. These attacks often go undetected for weeks or months and can completely bypass standard defenses."
+    ),
+    "Man-in-the-Middle": (
+        "A Man-in-the-Middle (MITM) attack is like someone eavesdropping on a private conversation. The attacker secretly intercepts data between two parties—often on public Wi-Fi or spoofed websites—without either side knowing. "
+        "They might just listen or change the communication (e.g., inject malicious links). This compromises data like login info, financial details, or session tokens."
+    ),
+    "XSS": (
+        "Cross-Site Scripting (XSS) happens when attackers inject malicious scripts (usually JavaScript) into websites that other users view. "
+        "If the site doesn’t clean up user input, an attacker could post a comment or profile bio that contains hidden code. "
+        "That code runs in other users’ browsers, stealing cookies or hijacking accounts."
+    ),
+    "DNS Spoofing": (
+        "DNS Spoofing (or DNS Poisoning) tricks your computer into thinking a fake website is real. The attacker changes DNS records so that when you try to visit 'example.com', "
+        "you’re silently redirected to a malicious site instead. It’s used to steal data, serve malware, or conduct surveillance."
+    ),
+    "Privilege Escalation": (
+        "Privilege Escalation happens when a user gains access to resources they shouldn’t have. For instance, a regular employee might exploit a flaw to gain admin-level powers. "
+        "This is usually the result of bad configurations or software bugs and allows attackers to do serious damage—like deleting logs, creating new users, or accessing restricted data."
+    ),
+    "Ransomware": (
+        "Ransomware is a type of malware that encrypts your files, then demands payment (often in cryptocurrency) to unlock them. "
+        "It spreads via phishing emails, malicious downloads, or unpatched systems. "
+        "Victims—whether individuals, hospitals, or cities—are often pressured to pay quickly or lose their data permanently."
+    ),
+    "Trojan": (
+        "A Trojan Horse is malware disguised as a harmless or useful file—like a game, app, or document. When users run it, it quietly installs itself, often giving attackers control of the system. "
+        "It may download more malware, spy on users, or open a backdoor for remote access."
+    ),
+    "Botnet": (
+        "A Botnet is a network of devices (computers, routers, IoT) infected with malware and controlled remotely. The devices act like ‘zombies’, performing tasks for the attacker—usually without the owner's knowledge. "
+        "Botnets are often used to launch DDoS attacks, send spam, or mine cryptocurrency at scale."
+    ),
+    "Insider Threat": (
+        "Insider Threats come from people inside an organization—employees, contractors, or partners—who misuse their access intentionally or accidentally. "
+        "They might steal data, delete systems, or allow malware in. Since they already have legitimate access, they’re much harder to detect."
+    ),
+    "Supply Chain Attack": (
+        "Supply Chain Attacks target organizations by compromising third-party software, vendors, or dependencies. "
+        "Instead of attacking directly, the attacker injects malicious code into trusted tools or updates, which then get distributed to victims. "
+        "These attacks can be widespread and hard to trace, like the infamous SolarWinds breach."
+    ),
+}
+
+# 🔁 Return to Dashboard
+def back_to_dashboard_button():
+    btn = widgets.Button(description="⬅️ Back to Dashboard", layout=widgets.Layout(width="250px"))
+    btn.on_click(lambda b: show_attack_dashboard())
+    return btn
+
+# 💥 Simulation handler
+def run_simulation(attack_name):
+    clear_output()
+    display(Markdown(f"# 🚨 Simulating **{attack_name}** Attack"))
+    display(Markdown("### 🧠 **What is this attack?**"))
+    display(Markdown(ATTACK_DESCRIPTIONS.get(attack_name, "Description not available.")))
+
+    # 📊 Metrics to identify this attack
+    jitter = random.uniform(0.5, 50)
+    latency = random.uniform(10, 300)
+    packet_loss = random.uniform(0.1, 8)
+    packets_sec = random.randint(200, 15000)
+    anomaly_score = random.uniform(0.6, 1.0)
+    login_attempts = random.randint(3, 500) if attack_name in ["Brute Force", "Insider Threat"] else random.randint(0, 20)
+
+    detection_metrics = {
+        "Jitter": f"{jitter:.2f} ms",
+        "Latency": f"{latency:.2f} ms",
+        "Packet Loss": f"{packet_loss:.2f}%",
+        "Packets/sec": packets_sec,
+        "Anomaly Score": f"{anomaly_score:.2f}",
+        "Login Attempts": login_attempts
+    }
+
+    display(Markdown("### 📊 **How do we detect this?**"))
+    for key, val in detection_metrics.items():
+        display(Markdown(f"- **{key}**: `{val}`"))
+
+    # 🧬 What these metrics generally tell us
+    display(Markdown("### 🔎 **What these metrics tell us:**"))
+    display(Markdown(
+        f"- **Jitter** (`{jitter:.2f} ms`) — *Jitter measures the variation in packet delay across a network.*\n"
+        f"   - High jitter (e.g., >20 ms): Can indicate network instability, often due to spoofed or compromised routes.\n"
+        f"   - Low jitter (e.g., <5 ms): Normal for a stable connection.\n"
+        f"   - Good range: **0–5 ms (low)**, **20+ ms (high)**\n"
+        f"\n"
+        f"- **Latency** (`{latency:.2f} ms`) — *Latency is the time it takes for data to travel from source to destination.*\n"
+        f"   - High latency (e.g., >150 ms): Suggests network congestion or interception (e.g., MITM, DDoS).\n"
+        f"   - Low latency (e.g., <50 ms): Indicates fast and responsive communication.\n"
+        f"   - Good range: **0–50 ms (low)**, **150+ ms (high)**\n"
+        f"\n"
+        f"- **Packet Loss** (`{packet_loss:.2f}%`) — *Percentage of data packets that fail to reach their destination.*\n"
+        f"   - High packet loss (e.g., >3%): Sign of overloaded or failing network, often due to attacks like DDoS or DNS poisoning.\n"
+        f"   - Low packet loss (e.g., <0.5%): Normal in healthy networks.\n"
+        f"   - Good range: **0–0.5% (low)**, **3%+ (high)**\n"
+        f"\n"
+        f"- **Packets/sec** (`{packets_sec}`) — *Number of data packets sent per second.*\n"
+        f"   - High rate (e.g., >5,000): May indicate automated attack tools, botnets, or flood-based behavior.\n"
+        f"   - Low rate (e.g., <500): Normal for low-volume traffic or idle sessions.\n"
+        f"   - Good range: **<500 (low)**, **>5,000 (high)**\n"
+        f"\n"
+        f"- **Anomaly Score** (`{anomaly_score:.2f}`) — *How much current behavior deviates from baseline (0 to 1 scale).* \n"
+        f"   - High score (e.g., >0.8): Strong indication of suspicious activity like zero-day, insider, or novel attacks.\n"
+        f"   - Low score (e.g., <0.4): Normal system behavior.\n"
+        f"   - Good range: **0.0–0.4 (low)**, **0.8–1.0 (high)**\n"
+        f"\n"
+        f"- **Login Attempts** (`{login_attempts}`) — *Number of login attempts recorded in a given window.*\n"
+        f"   - High (e.g., >50): Strong signal of brute force attempts or compromised credentials.\n"
+        f"   - Low (e.g., <5): Normal user activity.\n"
+        f"   - Good range: **0–5 (low)**, **50+ (high)**"
+    ))
+
+
+    # 🔐 Encryption & protection guidance
+    display(Markdown("### 🛡️ **How to protect against it:**"))
+    for algo in ENCRYPTION_ALGORITHMS.get(attack_name, []):
+        desc = {
+            "AES": "Fast and robust for securing large volumes of data.",
+            "RSA": "Ensures secure data exchange and authentication using public-private keys.",
+            "SSL/TLS": "Secures web traffic and prevents interception in transit.",
+            "ECC": "Strong encryption with efficient key sizes, suitable for mobile and IoT.",
+            "Blowfish": "Symmetric encryption for secure files and legacy systems.",
+            "Content Security Policy": "Stops script injections by limiting executable sources.",
+            "Input Sanitization": "Blocks SQLi and XSS by cleaning user input.",
+            "WAF": "Stops known web attacks at the edge before they reach your app.",
+            "DNSSEC": "Digitally signs DNS responses to protect against forged entries.",
+            "Access Control": "Limits who can do what, blocking privilege misuse.",
+            "RBAC": "Applies least-privilege rules across user roles and systems.",
+            "Audit Logs": "Enables traceability of user actions in the system.",
+            "Zero Trust": "Continuously verifies users and devices before granting access.",
+            "Monitoring": "Alerts security teams to unusual behavior or patterns.",
+            "Code Signing": "Confirms software origin and integrity.",
+            "SBOM": "Helps verify and track all third-party components used in software."
+        }.get(algo, "Standard security mechanism.")
+        display(Markdown(f"- **{algo}**: {desc}"))
+
+    display(back_to_dashboard_button())
+
+# 🔘 Generate button for each attack
+def make_button(attack_name):
+    btn = widgets.Button(description=attack_name, layout=widgets.Layout(width="250px"))
+    btn.on_click(lambda b: run_simulation(attack_name))
+    return btn
+
+# 🧱 Main Dashboard
+def show_attack_dashboard():
+    clear_output()
+    display(Markdown("## 🧰 **Cyber Attack Simulation Dashboard**"))
+    buttons = [make_button(name) for name in ENCRYPTION_ALGORITHMS.keys()]
+    grid = widgets.GridBox(buttons, layout=widgets.Layout(
+        grid_template_columns="repeat(2, 270px)",
+        grid_gap="10px"
+    ))
+    display(grid)
+
+# ▶️ Launch dashboard
+show_attack_dashboard()
