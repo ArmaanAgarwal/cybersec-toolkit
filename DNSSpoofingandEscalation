@@ -1,0 +1,85 @@
+from IPython.display import display, Markdown, clear_output
+import random
+import matplotlib.pyplot as plt
+import logging
+import pandas as pd
+import seaborn as sns
+
+# ✅ Logger
+def log_attack(attack_type, message):
+    logging.info(f"{attack_type}: {message}")
+    print(f"🔍 Log -> {attack_type}: {message}")
+
+# 🔐 Encryption algorithm recommendations
+ENCRYPTION_ALGORITHMS = {
+    "Spoofing": ["AES", "RSA", "SSL/TLS"],
+    "Phishing": ["AES", "RSA", "ECC"],
+    "DDoS": ["IPSec", "SSL/TLS"],
+    "SQL Injection": ["AES", "RSA"],
+    "Brute Force": ["RSA"],
+    "Zero-Day Exploit": ["RSA", "ECC", "AES"],
+    "Man-in-the-Middle": ["SSL/TLS", "RSA", "ECC"],
+    "XSS": ["Content Security Policy", "Input Sanitization", "WAF"],
+    "DNS Spoofing": ["DNSSEC", "SSL/TLS"],
+    "Privilege Escalation": ["Access Control", "RBAC", "Audit Logs"]
+}
+
+def get_recommended_encryption(attack_type):
+    return ENCRYPTION_ALGORITHMS.get(attack_type, ["No recommendation found"])
+
+# ✅ DNS Spoofing Simulation
+def simulate_dns_spoofing():
+    clear_output(wait=True)
+    display(Markdown("## 🌐 Simulating DNS Spoofing Attack"))
+
+    fake_dns_entries = [("www.bank.com", "192.168.1.1"), ("www.paypal.com", "192.168.1.2")]
+    target_url = "victim.com"
+
+    print("🧪 Poisoning DNS cache with fake IPs:")
+    for domain, ip in fake_dns_entries:
+        print(f"→ {domain} => {ip}")
+
+    print(f"\n🚨 Redirecting victim to fake IP for {fake_dns_entries[0][0]}")
+
+    fig, ax = plt.subplots(figsize=(7, 3))
+    rates = [random.randint(5, 30) for _ in fake_dns_entries]
+    ax.bar([entry[0] for entry in fake_dns_entries], rates, color='green')
+    ax.set_title("📊 DNS Spoofing Poisoning Rate")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+    print(f"😨 Victim realizes redirection: {target_url} was redirected.")
+    display(Markdown(f"🔐 **Recommended Protection:** `{', '.join(get_recommended_encryption('DNS Spoofing'))}`"))
+    log_attack("DNS Spoofing", "Simulated poisoning of DNS cache.")
+    return "DNS Spoofing simulation completed."
+
+# ✅ Privilege Escalation Simulation
+def simulate_privilege_escalation():
+    clear_output(wait=True)
+    display(Markdown("## 🔑 Simulating Privilege Escalation Attack"))
+
+    user = "guest_user"
+    system = f"Linux{random.randint(1, 100)}.com"
+    print(f"🔍 Targeting {user} on {system}...")
+
+    attempts = [random.randint(10, 60) for _ in range(5)]
+    success = random.randint(0, 4)
+    attempts[success] = random.randint(70, 100)
+
+    fig, ax = plt.subplots(figsize=(7, 3))
+    ax.plot(attempts, marker='o', color='red')
+    ax.set_title("📊 Privilege Escalation Success Probability")
+    plt.xlabel("Attempt #")
+    plt.ylabel("Success Rate (%)")
+    plt.tight_layout()
+    plt.show()
+
+    print(f"✅ Privilege escalated after {success+1} attempt(s).")
+    display(Markdown(f"🔐 **Recommended Protection:** `{', '.join(get_recommended_encryption('Privilege Escalation'))}`"))
+    log_attack("Privilege Escalation", "Simulated escalation of user privileges.")
+    return "Privilege Escalation simulation completed."
+
+# 🔁 Run both simulations
+simulate_dns_spoofing()
+simulate_privilege_escalation()
