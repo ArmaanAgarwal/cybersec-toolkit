@@ -1,0 +1,102 @@
+import logging
+import random
+import threading
+from flask import Flask, jsonify
+import seaborn as sns
+from IPython.display import Markdown, display
+
+# 🎯 Logging setup
+logging.basicConfig(filename="cyber_model.log", level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s")
+sns.set_theme(style="darkgrid")
+
+# 🌐 Flask application
+app = Flask(__name__)
+
+# 💥 Threat metadata (attack types and IDs)
+THREAT_CATEGORIES = {
+    "Phishing": 0, "Ransomware": 1, "DDoS": 2, "Man-in-the-Middle": 3,
+    "SQL Injection": 4, "Zero-Day Exploit": 5, "Botnet": 6, "Trojan": 7,
+    "Spoofing": 8, "Brute Force": 9, "XSS": 10, "DNS Spoofing": 11,
+    "Privilege Escalation": 12, "Insider Threat": 13, "Replay Attack": 14,
+    "Social Engineering": 15
+}
+
+# 🔐 Encryption recommendations
+ENCRYPTION_ALGORITHMS = {
+    "Phishing": ["AES", "RSA", "ECC"],
+    "Ransomware": ["AES", "Blowfish", "RSA"],
+    "DDoS": ["IPSec", "SSL/TLS"],
+    "Man-in-the-Middle": ["SSL/TLS", "RSA", "ECC"],
+    "SQL Injection": ["AES", "RSA"],
+    "Zero-Day Exploit": ["RSA", "ECC", "AES"],
+    "Botnet": ["SSL/TLS", "AES"],
+    "Trojan": ["AES", "RSA"],
+    "Spoofing": ["AES", "RSA", "SSL/TLS"],
+    "Brute Force": ["RSA"],
+    "XSS": ["Content-Security-Policy", "WAFs"],
+    "DNS Spoofing": ["DNSSEC", "SSL"],
+    "Privilege Escalation": ["SELinux", "RBAC"],
+    "Insider Threat": ["UBA", "Zero Trust"],
+    "Replay Attack": ["Timestamps", "Nonces"],
+    "Social Engineering": ["2FA", "Employee Training"]
+}
+
+# 📝 Log storage
+attack_logs = []
+
+# 🔧 Fake data generators
+def generate_fake_ip():
+    return f"10.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(1, 254)}"
+
+def generate_fake_mac():
+    return ":".join([f"{random.randint(0, 255):02x}" for _ in range(6)])
+
+# 🧠 Display encryption strategies
+def display_encryption(attack_type):
+    algorithms = ENCRYPTION_ALGORITHMS.get(attack_type, ["Unknown"])
+    display(Markdown(f"**🔐 Recommended Encryption for `{attack_type}`:** `{', '.join(algorithms)}`"))
+    return algorithms
+
+# 📝 Log attack
+def log_attack(attack_type, details):
+    recommended_encryption = display_encryption(attack_type)
+    full_details = {
+        "type": attack_type,
+        "source_ip": generate_fake_ip(),
+        "mac": generate_fake_mac(),
+        "encryption": recommended_encryption,
+        **details
+    }
+    attack_logs.append(full_details)
+    logging.info(f"[{attack_type}] Attack logged: {full_details}")
+
+# 🚀 Sample log for testing
+log_attack("DDoS", {
+    "target_ip": "172.16.254.1",
+    "packet_count": random.randint(1000, 2000),
+    "jitter_ms": round(random.uniform(10.0, 50.0), 2),
+    "latency_ms": random.randint(20, 200),
+    "anomaly_score": round(random.uniform(0.6, 0.99), 2)
+})
+
+# 🌐 Flask endpoints
+@app.route('/')
+def index():
+    return "🚨 Cyber Threat Logger is active."
+
+@app.route('/threats', methods=['GET'])
+def get_threats():
+    return jsonify({"available_threats": list(THREAT_CATEGORIES.keys())})
+
+@app.route('/logs', methods=['GET'])
+def get_logs():
+    return jsonify(attack_logs)
+
+# 📡 Run Flask in background
+PORT = random.randint(1000, 9999)
+def run_app():
+    app.run(port=PORT, host="0.0.0.0")
+
+threading.Thread(target=run_app, daemon=True).start()
+print(f"✅ Your Flask app is live at: http://localhost:{PORT}")
