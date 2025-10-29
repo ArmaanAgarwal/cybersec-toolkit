@@ -1,0 +1,78 @@
+import random
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+from IPython.display import display, Markdown
+
+sns.set_style("whitegrid")
+
+def log_attack(attack_type, message):
+    print(f"🛡️ [{attack_type}] {message}")
+
+# 🖥️ SQL Injection Attack
+def simulate_sql_injection():
+    display(Markdown("## 🖥️ Simulating SQL Injection Attack"))
+    target_url = f"http://vulnerable-site{random.randint(10,99)}.com/login"
+    fake_payloads = [
+        "' OR 1=1--", "' UNION SELECT NULL,NULL--",
+        "'; DROP TABLE users;--", "' OR 'a'='a",
+        "' OR EXISTS(SELECT * FROM users)--"
+    ]
+    results = []
+    for payload in fake_payloads:
+        success_rate = round(random.uniform(0.3, 0.9), 2)
+        packets = random.randint(50, 150)
+        delay = random.randint(10, 100)
+        bypassed_waf = random.choice([True, False])
+        results.append((payload, success_rate, packets, delay, bypassed_waf))
+        log_attack("SQL Injection", f"Payload: {payload} | WAF Bypassed: {bypassed_waf} | Delay: {delay}ms")
+    df = pd.DataFrame(results, columns=["Payload", "Success Rate", "Packets Sent", "Delay (ms)", "Bypassed WAF"])
+    display(df)
+    sns.barplot(x="Payload", y="Success Rate", data=df, palette="Greens")
+    plt.xticks(rotation=30); plt.tight_layout(); plt.show()
+    sns.barplot(x="Payload", y="Delay (ms)", data=df, palette="Blues")
+    plt.xticks(rotation=30); plt.tight_layout(); plt.show()
+
+# 🔐 Brute Force Attack
+def simulate_brute_force():
+    display(Markdown("## 🔐 Simulating Brute Force Attack"))
+    usernames = ["admin", "root", "supervisor", "hr_admin"]
+    passwords = ["password", "123456", "letmein", "admin2024", "qwerty"]
+    combos = [(u, p) for u in usernames for p in passwords]
+    total = len(combos); lockout = 10
+    success_index = random.randint(5, total - 1)
+    compromised = combos[success_index]
+    delays = [random.randint(50, 300) for _ in combos]
+    display(Markdown(f"🔁 **Total Attempts:** `{total}`"))
+    display(Markdown(f"🔓 **Compromised Account:** `{compromised[0]}/{compromised[1]}`"))
+    for i, ((u, p), d) in enumerate(zip(combos, delays)):
+        if i <= 3 or i >= success_index - 2:
+            log_attack("Brute Force Attempt", f"User: {u}, Pass: {p}, Delay: {d}ms")
+    plt.plot(range(1, total + 1), delays, marker="o", color="purple")
+    plt.axvline(lockout, color="red", linestyle="--", label="Lockout Threshold")
+    plt.title("📊 Brute Force Delays"); plt.xlabel("Attempt #"); plt.ylabel("Delay (ms)")
+    plt.grid(True); plt.legend(); plt.tight_layout(); plt.show()
+
+# 💻 Zero-Day Exploit
+def simulate_zero_day():
+    display(Markdown("## 💻 Simulating Zero-Day Exploit"))
+    cve_id = f"CVE-2025-{random.randint(1000, 9999)}"
+    system = f"LinuxServer-{random.randint(1, 100)}"
+    attempts = random.randint(30, 100)
+    compromise = round(random.uniform(0.5, 0.99), 2)
+    defense = random.choice([True, False])
+    display(Markdown(f"🧪 **Vulnerability:** `{cve_id}`"))
+    display(Markdown(f"💻 **Target System:** `{system}`"))
+    display(Markdown(f"📈 **Compromise Score:** `{compromise * 100:.2f}%`"))
+    display(Markdown(f"🛡️ **Bypassed Defense:** `{defense}`"))
+    log_attack("Zero-Day Exploit", f"{cve_id} | System: {system} | Compromise: {compromise}")
+    values = [random.gauss(compromise * 100, 10) for _ in range(attempts)]
+    values = [min(max(v, 0), 100) for v in values]
+    sns.histplot(values, bins=15, kde=True, color="darkred")
+    plt.title("📊 Exploit Probability Distribution"); plt.xlabel("Compromise (%)"); plt.ylabel("Frequency")
+    plt.grid(True); plt.tight_layout(); plt.show()
+
+# ✅ Run all 3 simulations
+simulate_sql_injection()
+simulate_brute_force()
+simulate_zero_day()
