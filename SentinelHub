@@ -1,0 +1,196 @@
+from IPython.display import display, Markdown
+import random
+import matplotlib.pyplot as plt
+import logging
+import pandas as pd
+import seaborn as sns
+
+# ✅ Logger
+def log_attack(attack_type, message):
+    logging.info(f"{attack_type}: {message}")
+    print(f"🔍 Log -> {attack_type}: {message}")
+
+# 🔐 Encryption algorithm recommendations
+ENCRYPTION_ALGORITHMS = {
+    "Spoofing": ["AES", "RSA", "SSL/TLS"],
+    "Phishing": ["AES", "RSA", "ECC"],
+    "DDoS": ["IPSec", "SSL/TLS"],
+    "SQL Injection": ["AES", "RSA"],
+    "Brute Force": ["RSA"],
+    "Zero-Day Exploit": ["RSA", "ECC", "AES"],
+    "Man-in-the-Middle": ["SSL/TLS", "RSA", "ECC"]
+}
+
+def get_recommended_encryption(attack_type):
+    return ENCRYPTION_ALGORITHMS.get(attack_type, ["No recommendation found"])
+
+# ✅ Spoofing Simulation
+def simulate_spoofing():
+    display(Markdown("## 🎭 Simulating Spoofing Attack"))
+    fake_ips = [f"192.168.1.{random.randint(1, 255)}" for _ in range(10)]
+    spoof_counts = [random.randint(10, 40) for _ in fake_ips]
+    df = pd.DataFrame({'Fake IP': fake_ips, 'Packets Sent': spoof_counts})
+    display(df)
+
+    plt.figure(figsize=(7, 3))
+    plt.plot(spoof_counts, marker='o', color='orange')
+    plt.title("📊 Spoofed Packet Flow")
+    plt.xlabel("Fake IP Index")
+    plt.ylabel("Packet Count")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    log_attack("Spoofing", "Simulated spoofed traffic from 10 IPs.")
+    display(Markdown(f"🔐 **Recommended Encryption:** `{', '.join(get_recommended_encryption('Spoofing'))}`"))
+    return "Spoofing simulation completed."
+
+# ✅ Phishing Simulation
+def simulate_phishing():
+    display(Markdown("## 🕵️ Simulating Phishing Attack"))
+    fake_emails = [f"alert@{s}.com" for s in ['bank', 'social', 'update']]
+    open_counts = [random.randint(50, 120) for _ in fake_emails]
+    df = pd.DataFrame({'Phishing Email': fake_emails, 'Open Count': open_counts})
+    display(df)
+
+    plt.figure(figsize=(7, 3))
+    sns.barplot(x='Phishing Email', y='Open Count', data=df, palette='Blues')
+    plt.title("📊 Phishing Email Open Rate")
+    plt.tight_layout()
+    plt.show()
+
+    log_attack("Phishing", f"Sent 3 phishing emails: {fake_emails}")
+    display(Markdown(f"🔐 **Recommended Encryption:** `{', '.join(get_recommended_encryption('Phishing'))}`"))
+    return "Phishing simulation completed."
+
+# ✅ DDoS Simulation
+def simulate_ddos():
+    display(Markdown("## 🌐 Simulating DDoS Attack"))
+    packet_rate = [random.randint(100, 500) for _ in range(10)]
+
+    plt.figure(figsize=(7, 3))
+    plt.plot(packet_rate, marker='x', color='red')
+    plt.title("📊 DDoS Packet Rate")
+    plt.xlabel("Time Tick")
+    plt.ylabel("Packets/sec")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    log_attack("DDoS", f"Flooded server with {sum(packet_rate)} packets.")
+    display(Markdown(f"🔐 **Recommended Encryption:** `{', '.join(get_recommended_encryption('DDoS'))}`"))
+    return "DDoS simulation completed."
+
+# ✅ SQL Injection Simulation
+def simulate_sql_injection():
+    display(Markdown("## 🖥️ Simulating SQL Injection Attack"))
+    target_url = f"http://vulnerable-site{random.randint(1, 50)}.com"
+    payloads = ["' OR 1=1--", "' OR 'a'='a", "1; DROP TABLE users", "admin'--"]
+    counts = [random.randint(5, 20) for _ in payloads]
+    df = pd.DataFrame({'Payload': payloads, 'Execution Attempts': counts})
+    display(Markdown(f"**Target URL:** `{target_url}`"))
+    display(df)
+
+    plt.figure(figsize=(7, 3))
+    sns.barplot(x='Payload', y='Execution Attempts', data=df, palette='Greens')
+    plt.xticks(rotation=30)
+    plt.title("📊 SQL Injection Execution Attempts")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    log_attack("SQL Injection", f"Tested 4 payloads on {target_url}")
+    display(Markdown(f"🔐 **Recommended Encryption:** `{', '.join(get_recommended_encryption('SQL Injection'))}`"))
+    return "SQL Injection simulation completed."
+
+# ✅ Brute Force Simulation
+def simulate_brute_force():
+    display(Markdown("## 🔐 Simulating Brute Force Attack"))
+    users = ["admin", "root", "user123"]
+    passwords = ["123456", "admin123", "letmein"]
+    combos = [(u, p) for u in users for p in passwords]
+    delays = [random.randint(50, 300) for _ in combos]
+    df = pd.DataFrame(combos, columns=["Username", "Password"])
+    df["Delay (ms)"] = delays
+    display(df)
+
+    plt.figure(figsize=(7, 3))
+    plt.plot(df["Delay (ms)"], marker='o', color='purple')
+    plt.title("📊 Brute Force Attempt Delays")
+    plt.xlabel("Attempt #")
+    plt.ylabel("Delay (ms)")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    log_attack("Brute Force", f"Ran {len(combos)} credential guesses.")
+    display(Markdown(f"🔐 **Recommended Encryption:** `{', '.join(get_recommended_encryption('Brute Force'))}`"))
+    return "Brute Force simulation completed."
+
+# ✅ Zero-Day Exploit Simulation
+def simulate_zero_day():
+    display(Markdown("## 💻 Simulating Zero-Day Exploit"))
+    cve = f"CVE-2025-{random.randint(1000,9999)}"
+    system = f"TargetSystem-{random.randint(1,100)}"
+    score = round(random.uniform(0.6, 0.99), 2)
+    display(Markdown(f"🧪 **Exploit Target:** `{system}`"))
+    display(Markdown(f"🛡️ **Vulnerability:** `{cve}` | Score: `{score * 100:.2f}%`"))
+
+    values = [min(max(random.gauss(score * 100, 8), 0), 100) for _ in range(40)]
+    sns.histplot(values, bins=12, kde=True, color='brown')
+    plt.title("📊 Compromise Probability Distribution")
+    plt.xlabel("Compromise Likelihood (%)")
+    plt.ylabel("Frequency")
+    plt.tight_layout()
+    plt.grid(True)
+    plt.show()
+
+    log_attack("Zero-Day Exploit", f"Simulated {cve} on {system} with score {score}")
+    display(Markdown(f"🔐 **Recommended Encryption:** `{', '.join(get_recommended_encryption('Zero-Day Exploit'))}`"))
+    return "Zero-Day Exploit simulation completed."
+
+# ✅ MITM Simulation
+def simulate_mitm():
+    display(Markdown("## 🕵️‍♂️ Simulating Man-in-the-Middle (MITM) Attack"))
+    attacker = f"192.168.{random.randint(1, 100)}.{random.randint(1, 100)}"
+    victim = f"192.168.{random.randint(1, 100)}.{random.randint(1, 100)}"
+    domain = f"www.fakebank{random.randint(1,99)}.com"
+    intercepts = [random.randint(5, 25) for _ in range(12)]
+
+    print(f"👥 Attacker IP: {attacker}, Victim IP: {victim}")
+    print(f"🌐 Spoofed Domain: {domain}")
+
+    plt.figure(figsize=(7, 3))
+    plt.plot(intercepts, linestyle='--', marker='s', color='navy')
+    plt.title("📊 MITM Packet Interception Over Time")
+    plt.xlabel("Session Tick")
+    plt.ylabel("Intercepted Packets")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    log_attack("MITM", f"Intercepted spoofed SSL certs for {domain}")
+    display(Markdown(f"🔐 **Recommended Encryption:** `{', '.join(get_recommended_encryption('Man-in-the-Middle'))}`"))
+    return "MITM simulation completed."
+
+# ✅ Full Simulation Suite
+def security_check():
+    display(Markdown("## 🔒 Performing Final Endpoint Security Check"))
+    results = {
+        "Spoofing": simulate_spoofing(),
+        "Phishing": simulate_phishing(),
+        "DDoS": simulate_ddos(),
+        "SQL Injection": simulate_sql_injection(),
+        "Brute Force": simulate_brute_force(),
+        "Zero-Day Exploit": simulate_zero_day(),
+        "Man-in-the-Middle": simulate_mitm()
+    }
+
+    for attack, result in results.items():
+        print(f"✅ {attack}: {result}")
+
+    log_attack("Final Security Check", "✅ All attack simulations executed successfully.")
+    display(Markdown("### ✅ **All attacks simulated and logged.**"))
+
+# 🚀 Run simulation suite
+security_check()
