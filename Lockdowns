@@ -1,0 +1,70 @@
+import random
+import matplotlib.pyplot as plt
+import pandas as pd
+from IPython.display import display, Markdown
+
+# 🔐 Encryption algorithms map (ensure this is consistent across your full project)
+ENCRYPTION_ALGORITHMS = {
+    "Ransomware": ["AES", "Blowfish", "RSA"]
+}
+
+# ✅ Logger
+def log_attack(attack_type, message):
+    print(f"🔍 Log -> {attack_type}: {message}")
+
+# 🔒 Ransomware Attack Simulation (Improved)
+def simulate_ransomware_simple():
+    display(Markdown("## 🛡️ Simulating Ransomware Attack"))
+
+    # Simulated files
+    fake_files = ["important_doc.txt", "financial_report.pdf", "budget_plan.xlsx", "presentation.pptx"]
+    encrypted_files = [f"{f}.locked" for f in fake_files]
+    decrypted_files = [f.replace(".locked", ".decrypted") for f in encrypted_files]
+
+    # Simulated progress data
+    encryption_rate = [random.randint(60, 90) for _ in fake_files]
+    decryption_rate = [random.randint(80, 100) for _ in fake_files]
+
+    # Summary table
+    df = pd.DataFrame({
+        "Original File": fake_files,
+        "Encrypted As": encrypted_files,
+        "Encryption %": encryption_rate,
+        "Decrypted As": decrypted_files,
+        "Decryption %": decryption_rate
+    })
+    display(df)
+
+    # Encryption progress chart
+    plt.figure(figsize=(7, 3))
+    plt.bar(df["Original File"], df["Encryption %"], color='crimson')
+    plt.title("📊 Ransomware Encryption Progress")
+    plt.ylabel("Encryption (%)")
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    # Decryption progress chart
+    plt.figure(figsize=(7, 3))
+    plt.bar(df["Decrypted As"], df["Decryption %"], color='forestgreen')
+    plt.title("📊 Ransomware Decryption Progress")
+    plt.ylabel("Decryption (%)")
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    # Encryption defense recommendations
+    recommended = ENCRYPTION_ALGORITHMS.get("Ransomware", ["No recommendation found"])
+    display(Markdown("### 🔐 **Recommended Encryption to Prevent Ransomware Attacks:**"))
+    for algo in recommended:
+        display(Markdown(f"- `{algo}`"))
+
+    # Log attack
+    log_attack("Ransomware", f"Encrypted {len(fake_files)} files. Recommended defense: {', '.join(recommended)}")
+
+    display(Markdown("### ✅ **Ransomware Attack Simulation Completed**"))
+
+# ✅ Run the simulation
+simulate_ransomware_simple()
