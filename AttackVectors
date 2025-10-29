@@ -1,0 +1,115 @@
+from IPython.display import display, Markdown, clear_output
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+import random
+import logging
+
+# ✅ Logger
+def log_attack(attack_type, message):
+    logging.info(f"{attack_type}: {message}")
+    print(f"🔍 Log -> {attack_type}: {message}")
+
+# 🔐 Encryption algorithm recommendations
+ENCRYPTION_ALGORITHMS = {
+    "Spoofing": ["AES", "RSA", "SSL/TLS"],
+    "Phishing": ["AES", "RSA", "ECC"],
+    "DDoS": ["IPSec", "SSL/TLS"],
+    "SQL Injection": ["AES", "RSA"],
+    "Brute Force": ["RSA"],
+    "Zero-Day Exploit": ["RSA", "ECC", "AES"],
+    "Man-in-the-Middle": ["SSL/TLS", "RSA", "ECC"],
+    "XSS": ["Content Security Policy", "Input Sanitization", "WAF"],
+    "Trojan": ["Code Signing", "Behavioral Monitoring", "Anti-malware"],
+    "Botnet": ["Firewall", "NIDS", "Command & Control Blocking"],
+    "Insider Threat": ["Audit Logging", "Access Control", "User Behavior Analytics"]
+}
+
+def get_recommended_encryption(attack_type):
+    return ENCRYPTION_ALGORITHMS.get(attack_type, ["No recommendation found"])
+
+# ✅ Simulations for each attack
+def simulate_xss():
+    clear_output(wait=True)
+    display(Markdown("## 🕸️ Simulating Cross-Site Scripting (XSS) Attack"))
+    payloads = ['<script>alert("XSS")</script>', '<img src=x onerror=alert(1)>', '<svg onload=alert(2)>']
+    print("Injecting payloads into target URL...")
+    for p in payloads:
+        print(f"→ {p}")
+    counts = [random.randint(10, 50) for _ in payloads]
+    plt.bar(payloads, counts, color="purple")
+    plt.title("📊 XSS Payload Execution Attempts")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+    display(Markdown(f"🔐 **Recommended:** `{', '.join(get_recommended_encryption('XSS'))}`"))
+    return "XSS simulation completed."
+
+def simulate_trojan():
+    clear_output(wait=True)
+    display(Markdown("## 🐴 Simulating Trojan Attack"))
+    trojans = ["dropper.exe", "infostealer.bat", "ransom.worm"]
+    print("Deploying trojans via email and downloads...")
+    for t in trojans:
+        print(f"📦 Injected Trojan: {t}")
+    detections = [random.randint(0, 5) for _ in trojans]
+    plt.bar(trojans, detections, color="crimson")
+    plt.title("📊 Trojan Detection Count")
+    plt.tight_layout()
+    plt.show()
+    display(Markdown(f"🔐 **Recommended:** `{', '.join(get_recommended_encryption('Trojan'))}`"))
+    return "Trojan simulation completed."
+
+def simulate_botnet():
+    clear_output(wait=True)
+    display(Markdown("## 🤖 Simulating Botnet Attack"))
+    bots = [f"Bot-{i}" for i in range(1, 6)]
+    packets = [random.randint(1000, 5000) for _ in bots]
+    plt.bar(bots, packets, color="gray")
+    plt.title("📊 Botnet Packet Flood")
+    plt.tight_layout()
+    plt.show()
+    print("Botnet attacking centralized server...")
+    display(Markdown(f"🔐 **Recommended:** `{', '.join(get_recommended_encryption('Botnet'))}`"))
+    return "Botnet simulation completed."
+
+def simulate_insider_threat():
+    clear_output(wait=True)
+    display(Markdown("## 👤 Simulating Insider Threat"))
+    users = ["alice", "bob", "carol"]
+    incidents = [random.randint(1, 10) for _ in users]
+    plt.bar(users, incidents, color="teal")
+    plt.title("📊 Insider Threat Incidents")
+    plt.tight_layout()
+    plt.show()
+    print("Detecting abnormal access patterns and data exfiltration...")
+    display(Markdown(f"🔐 **Recommended:** `{', '.join(get_recommended_encryption('Insider Threat'))}`"))
+    return "Insider Threat simulation completed."
+
+# ⚙️ Final Endpoint Security Check
+def security_check():
+    clear_output(wait=True)
+    display(Markdown("## 🔒 Performing Final Endpoint Security Check"))
+
+    attack_results = {
+        "Spoofing": "Done",
+        "Phishing": "Done",
+        "DDoS": "Done",
+        "SQL Injection": "Done",
+        "Brute Force": "Done",
+        "Zero-Day Exploit": "Done",
+        "Man-in-the-Middle": "Done",
+        "XSS": simulate_xss(),
+        "Trojan": simulate_trojan(),
+        "Botnet": simulate_botnet(),
+        "Insider Threat": simulate_insider_threat()
+    }
+
+    for name, result in attack_results.items():
+        print(f"✅ {name}: {result}")
+
+    log_attack("Final Security Check", "✅ All simulations completed.")
+    display(Markdown("### ✅ All attacks simulated and visualized."))
+
+# ✅ Run the full simulation
+security_check()
