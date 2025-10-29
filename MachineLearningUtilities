@@ -1,0 +1,174 @@
+import logging
+import random
+import threading
+from flask import Flask, jsonify
+import seaborn as sns
+from IPython.display import Markdown, display, clear_output
+import pandas as pd
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.model_selection import train_test_split
+import hashlib
+import numpy as np
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import joblib
+import os
+import matplotlib.pyplot as plt
+
+# 🎯 Logging setup
+logging.basicConfig(filename="cyber_model.log", level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s")
+sns.set_theme(style="darkgrid")
+
+# 🌐 Flask application
+app = Flask(__name__)
+
+# 💥 Threat metadata (attack types and IDs)
+THREAT_CATEGORIES = {
+    "Phishing": 0, "Ransomware": 1, "DDoS": 2, "Man-in-the-Middle": 3,
+    "SQL Injection": 4, "Zero-Day Exploit": 5, "Botnet": 6, "Trojan": 7,
+    "Spoofing": 8, "Brute Force": 9
+}
+
+# 🔐 Recommended encryption algorithms for each threat type
+ENCRYPTION_ALGORITHMS = {
+    "Phishing": ["AES", "RSA", "ECC"],
+    "Ransomware": ["AES", "Blowfish", "RSA"],
+    "DDoS": ["IPSec", "SSL/TLS"],
+    "Man-in-the-Middle": ["SSL/TLS", "RSA", "ECC"],
+    "SQL Injection": ["AES", "RSA"],
+    "Zero-Day Exploit": ["RSA", "ECC", "AES"],
+    "Botnet": ["SSL/TLS", "AES"],
+    "Trojan": ["AES", "RSA"],
+    "Spoofing": ["AES", "RSA", "SSL/TLS"],
+    "Brute Force": ["RSA"]
+}
+
+# 📝 List to store attack log entries
+attack_logs = []
+
+# 🔧 Helper: Generate random IP address
+def generate_fake_ip():
+    return f"192.168.1.{random.randint(1, 254)}"
+
+# 🔧 Helper: Generate random MAC address
+def generate_fake_mac():
+    return ":".join([f"{random.randint(0, 255):02x}" for _ in range(6)])
+
+# 🔧 Helper: Display recommended encryption visually
+def display_encryption(attack_type):
+    algorithms = ENCRYPTION_ALGORITHMS.get(attack_type, ["Unknown"])
+    display(Markdown(f"**🔐 Recommended Encryption for {attack_type}:** `{' | '.join(algorithms)}`"))
+    return algorithms
+
+# 📓 Log attack with associated encryption recommendations
+def log_attack(attack_type, details):
+    if isinstance(details, str):
+        details = {"message": details}
+    recommended_encryption = display_encryption(attack_type)
+    full_details = {
+        "type": attack_type,
+        "source_ip": generate_fake_ip(),
+        "mac": generate_fake_mac(),
+        "encryption": recommended_encryption,
+        **details
+    }
+    attack_logs.append(full_details)
+    logging.info(f"Attack logged: {attack_type} - Details: {full_details}")
+
+# ⚙️ Preprocess dataset
+def preprocess_data(filepath):
+    display(Markdown("### 🔄 Preprocessing Data..."))
+
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Dataset file `{filepath}` not found.")
+
+    df = pd.read_csv(filepath)
+    df.fillna("None", inplace=True)
+    print("Missing values filled with 'None'.")
+
+    cat = df[["Attack_Type1", "Attack_Type2", "Recommended_Encryption"]].astype(str)
+    enc = OneHotEncoder(sparse_output=False)
+    cat_encoded = enc.fit_transform(cat)
+    print("One-hot encoding completed for categorical features.")
+
+    num = df.drop(columns=["Attack_Type1", "Attack_Type2", "Recommended_Encryption"])
+    scaler = StandardScaler()
+    num_scaled = scaler.fit_transform(num)
+    print("Numerical features scaled.")
+
+    X = np.hstack((cat_encoded, num_scaled))
+    y = df["Attack_Type1"].map(THREAT_CATEGORIES).values
+
+    if np.any(np.isnan(X)) or np.any(np.isnan(y)):
+        raise ValueError("Data contains NaN values after preprocessing.")
+
+    print(f"✅ Data preprocessing complete. X shape: {X.shape}, y shape: {y.shape}")
+    return train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 🧪 Train model
+def train_model(X, y):
+    print("Training model...")
+    display(Markdown("### 🧠 Training AI Classifier..."))
+    logging.info("Started training the model...")
+
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    model = MLPClassifier(
+        hidden_layer_sizes=(256, 128, 64),
+        activation="relu",
+        solver="adam",
+        max_iter=2000,
+        alpha=0.001,
+        random_state=42
+    )
+
+    try:
+        model.fit(X_train, y_train)
+
+        train_acc = accuracy_score(y_train, model.predict(X_train))
+        val_acc = accuracy_score(y_val, model.predict(X_val))
+
+        display(Markdown("✅ **Training Complete. Model saved.**"))
+        display(Markdown(f"🎯 **Training Accuracy:** `{train_acc:.2%}`"))
+        display(Markdown(f"🧪 **Validation Accuracy:** `{val_acc:.2%}`"))
+
+        os.makedirs("models", exist_ok=True)
+        joblib.dump(model, "models/cyber_threat_model.pkl")
+        print("Model saved.")
+
+        log_attack("Model Training", {
+            "samples": len(X_train),
+            "train_acc": f"{train_acc:.2%}",
+            "val_acc": f"{val_acc:.2%}"
+        })
+
+        y_pred = model.predict(X_val)
+        cm = confusion_matrix(y_val, y_pred)
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt="d", cmap="YlGnBu")
+        plt.title("📊 Confusion Matrix (Validation Set)")
+        plt.xlabel("Predicted")
+        plt.ylabel("Actual")
+        plt.tight_layout()
+        plt.show()
+
+        report = classification_report(y_val, y_pred, zero_division=0)
+        print("📄 Classification Report:\n")
+        print(report)
+
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        logging.error(f"Error during model training: {str(e)}")
+        display(Markdown(f"❌ **Model training failed: {str(e)}**"))
+        return None
+
+    return model
+
+# 🧪 Example usage
+if __name__ == "__main__":
+    try:
+        X_train, X_test, y_train, y_test = preprocess_data("cyber_threats_dataset.csv")
+        train_model(np.vstack((X_train, X_test)), np.hstack((y_train, y_test)))
+    except Exception as e:
+        display(Markdown(f"❌ **Startup error:** {e}"))
