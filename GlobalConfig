@@ -1,0 +1,160 @@
+import logging
+import random
+import threading
+from flask import Flask, jsonify
+import seaborn as sns
+from IPython.display import Markdown, display, clear_output
+import pandas as pd
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.model_selection import train_test_split
+import hashlib
+from tqdm import tqdm
+import numpy as np
+
+# 🎯 Logging setup
+logging.basicConfig(filename="cyber_model.log", level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s")
+sns.set_theme(style="darkgrid")
+
+# 🌐 Flask app
+app = Flask(__name__)
+
+# 💥 Threat metadata
+THREAT_CATEGORIES = {
+    "Phishing": 0, "Ransomware": 1, "DDoS": 2, "Man-in-the-Middle": 3,
+    "SQL Injection": 4, "Zero-Day Exploit": 5, "Botnet": 6, "Trojan": 7,
+    "Spoofing": 8, "Brute Force": 9, "XSS": 10, "DNS Spoofing": 11,
+    "Privilege Escalation": 12, "Insider Threat": 13, "Replay Attack": 14,
+    "Social Engineering": 15
+}
+
+ENCRYPTION_ALGORITHMS = {
+    "Phishing": ["AES", "RSA", "ECC"],
+    "Ransomware": ["AES", "Blowfish", "RSA"],
+    "DDoS": ["IPSec", "SSL/TLS"],
+    "Man-in-the-Middle": ["SSL/TLS", "RSA", "ECC"],
+    "SQL Injection": ["AES", "RSA"],
+    "Zero-Day Exploit": ["RSA", "ECC", "AES"],
+    "Botnet": ["SSL/TLS", "AES"],
+    "Trojan": ["AES", "RSA"],
+    "Spoofing": ["AES", "RSA", "SSL/TLS"],
+    "Brute Force": ["RSA"],
+    "XSS": ["Content-Security-Policy", "WAFs"],
+    "DNS Spoofing": ["DNSSEC", "SSL"],
+    "Privilege Escalation": ["SELinux", "RBAC"],
+    "Insider Threat": ["UBA", "Zero Trust"],
+    "Replay Attack": ["Timestamps", "Nonces"],
+    "Social Engineering": ["2FA", "Training"]
+}
+
+attack_logs = []
+
+# 🔧 Utilities
+def generate_fake_ip():
+    return f"10.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(1, 254)}"
+
+def generate_fake_mac():
+    return ":".join([f"{random.randint(0, 255):02x}" for _ in range(6)])
+
+def display_encryption(attack_type):
+    algorithms = ENCRYPTION_ALGORITHMS.get(attack_type, ["Unknown"])
+    display(Markdown(f"**🔐 Recommended Encryption for `{attack_type}`:** `{', '.join(algorithms)}`"))
+    return algorithms
+
+def log_attack(attack_type, details):
+    enc = display_encryption(attack_type)
+    entry = {
+        "type": attack_type,
+        "ip": generate_fake_ip(),
+        "mac": generate_fake_mac(),
+        "encryption": enc,
+        **details
+    }
+    attack_logs.append(entry)
+    logging.info(f"[{attack_type}] {entry}")
+
+# 🌐 Flask Routes
+@app.route('/')
+def index():
+    return "✅ Cyber Threat Logger is running."
+
+@app.route('/threats', methods=['GET'])
+def get_threats():
+    return jsonify({"threats": list(THREAT_CATEGORIES.keys())})
+
+@app.route('/logs', methods=['GET'])
+def get_logs():
+    return jsonify(attack_logs)
+
+# 🚀 Start background Flask server
+PORT = random.randint(3000, 9999)
+def run_app():
+    app.run(port=PORT, host="0.0.0.0")
+threading.Thread(target=run_app, daemon=True).start()
+print(f"✅ Your app is live at: http://localhost:{PORT}")
+
+# 📦 Dataset Generation
+def generate_data(samples=1000):
+    clear_output(wait=True)
+    display(Markdown("### 🔄 Generating Cyber Threat Dataset with Encryption Tags..."))
+
+    rows = []
+    for _ in tqdm(range(samples), desc="🔁 Synthesizing Attacks"):
+        atk1 = random.choice(list(THREAT_CATEGORIES.keys()))
+        atk2 = random.choice(list(THREAT_CATEGORIES.keys())) if random.random() < 0.15 else "None"
+        enc_str = ", ".join(ENCRYPTION_ALGORITHMS.get(atk1, ["None"]))
+
+        row = [
+            atk1, atk2, enc_str,
+            random.randint(100, 20000),               # Traffic size
+            round(random.uniform(0.2, 1.0), 2),       # Anomaly score
+            random.randint(10, 500),                  # Response time
+            random.randint(1, 10),                    # Severity
+            random.randint(1, 500),                   # Frequency
+            round(random.uniform(0.0, 10.0), 2),       # Packet loss %
+            random.randint(10, 250),                  # Latency ms
+            random.randint(1, 100),                   # Jitter ms
+            random.choice(["North America", "Asia", "Europe", "Africa", "Unknown"]),  # Region
+            random.choice(["Metasploit", "Hydra", "Nmap", "None"])  # Toolkit
+        ]
+        rows.append(row)
+
+    df = pd.DataFrame(rows, columns=[
+        "Attack_Type1", "Attack_Type2", "Recommended_Encryption", "Traffic_Size", "Anomaly_Score",
+        "Response_Time", "Impact_Severity", "Attack_Frequency", "Packet_Loss",
+        "Latency", "Jitter", "Region", "Toolkit"
+    ])
+    df.to_csv("cyber_threats_dataset.csv", index=False)
+    display(Markdown(f"✅ **{samples} Threats Generated**"))
+    display(df.head(10))
+    return df
+
+# ⚙️ Preprocessing
+def preprocess_data(df):
+    display(Markdown("### 🔄 Preprocessing Cyber Dataset"))
+    df.fillna("Unknown", inplace=True)
+
+    cat = df[["Attack_Type1", "Attack_Type2", "Recommended_Encryption", "Region", "Toolkit"]].astype(str)
+    enc = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
+    cat_encoded = enc.fit_transform(cat)
+
+    num = df.drop(columns=["Attack_Type1", "Attack_Type2", "Recommended_Encryption", "Region", "Toolkit"])
+    scaler = StandardScaler()
+    num_scaled = scaler.fit_transform(num)
+
+    X = np.hstack((cat_encoded, num_scaled))
+    y = df["Attack_Type1"].map(THREAT_CATEGORIES).fillna(-1).astype(int)
+
+    if np.any(np.isnan(X)) or np.any(np.isnan(y)):
+        raise ValueError("🚨 NaN detected after preprocessing.")
+
+    display(Markdown(f"✅ Preprocessed Dataset — `X shape: {X.shape}` / `y shape: {y.shape}`"))
+    encrypted_snapshot = hashlib.sha256(str(X[:10]).encode()).hexdigest()
+    print(f"🔐 Sample SHA256 of input matrix: {encrypted_snapshot[:10]}...")
+
+    return train_test_split(X, y, test_size=0.2, random_state=42), encrypted_snapshot
+
+# 🧪 Example usage
+if __name__ == "__main__":
+    df = generate_data(500)
+    preprocess_data(df)
