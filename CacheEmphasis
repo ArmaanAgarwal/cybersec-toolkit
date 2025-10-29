@@ -1,0 +1,72 @@
+from IPython.display import display, Markdown, clear_output
+import random
+import matplotlib.pyplot as plt
+import logging
+import pandas as pd
+import seaborn as sns
+
+# ✅ Logger
+def log_attack(attack_type, message):
+    logging.info(f"{attack_type}: {message}")
+    print(f"🔍 Log -> {attack_type}: {message}")
+
+# 🔐 Encryption algorithm recommendations
+ENCRYPTION_ALGORITHMS = {
+    "Spoofing": ["AES", "RSA", "SSL/TLS"],
+    "Phishing": ["AES", "RSA", "ECC"],
+    "DDoS": ["IPSec", "SSL/TLS"],
+    "SQL Injection": ["AES", "RSA"],
+    "Brute Force": ["RSA"],
+    "Zero-Day Exploit": ["RSA", "ECC", "AES"],
+    "Man-in-the-Middle": ["SSL/TLS", "RSA", "ECC"],
+    "XSS": ["Content Security Policy", "Input Sanitization", "WAF"],
+    "DNS Spoofing": ["DNSSEC", "SSL/TLS"]
+}
+
+def get_recommended_encryption(attack_type):
+    return ENCRYPTION_ALGORITHMS.get(attack_type, ["No recommendation found"])
+
+# ✅ DNS Spoofing Simulation
+def simulate_dns_spoofing():
+    clear_output(wait=True)
+    display(Markdown("## 🌐 Simulating DNS Spoofing Attack"))
+
+    fake_dns_entries = [("www.bank.com", "192.168.1.1"), ("www.paypal.com", "192.168.1.2")]
+    target_url = "victim.com"
+
+    print(f"🧪 Poisoning DNS cache with fake IPs:")
+    for domain, ip in fake_dns_entries:
+        print(f"→ {domain} => {ip}")
+
+    print(f"\n🚨 Redirecting victim to fake IP for {fake_dns_entries[0][0]}: {fake_dns_entries[0][1]}")
+
+    fig, ax = plt.subplots(figsize=(7, 3))
+    poisoning_rate = [random.randint(5, 30) for _ in fake_dns_entries]
+    ax.bar([entry[0] for entry in fake_dns_entries], poisoning_rate, color='green')
+    ax.set_title("📊 DNS Spoofing Poisoning Rate")
+    ax.set_xlabel("Domain")
+    ax.set_ylabel("Poisoning Rate (%)")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+    print(f"\n😨 Victim realizes redirection: {target_url} was redirected to a malicious IP.")
+    print(f"🛡️ Victim redirected to fake IP {fake_dns_entries[0][1]} for {fake_dns_entries[0][0]}")
+    print(f"🔁 Victim attempts to access the real site again after DNS cache is cleared.\n")
+
+    fig, ax = plt.subplots(figsize=(7, 3))
+    attack_impact = [random.randint(10, 60) for _ in fake_dns_entries]
+    ax.bar([entry[0] for entry in fake_dns_entries], attack_impact, color='red')
+    ax.set_title("📊 Attack Impact on Victim's Browsing Experience")
+    ax.set_xlabel("Domain")
+    ax.set_ylabel("Impact (%)")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+    display(Markdown(f"🔐 **Recommended Protection:** `{', '.join(get_recommended_encryption('DNS Spoofing'))}`"))
+    log_attack("DNS Spoofing", "DNS Spoofing simulation completed.")
+    return "DNS Spoofing simulation completed."
+
+# ✅ Run the simulation
+simulate_dns_spoofing()
