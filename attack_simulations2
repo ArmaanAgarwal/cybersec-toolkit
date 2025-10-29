@@ -1,0 +1,166 @@
+from IPython.display import display, Markdown
+import random
+import matplotlib.pyplot as plt
+import logging
+
+# ✅ Logger
+def log_attack(attack_type, message):
+    logging.info(f"{attack_type}: {message}")
+    print(f"🔍 Log -> {attack_type}: {message}")
+
+# 🔐 Encryption algorithm recommendations
+ENCRYPTION_ALGORITHMS = {
+    "Spoofing": ["AES", "RSA", "SSL/TLS"],
+    "Phishing": ["AES", "RSA", "ECC"],
+    "DDoS": ["IPSec", "SSL/TLS"],
+    "SQL Injection": ["AES", "RSA"],
+    "Brute Force": ["RSA"],
+    "Zero-Day Exploit": ["RSA", "ECC", "AES"]
+}
+
+def get_recommended_encryption(attack_type):
+    return ENCRYPTION_ALGORITHMS.get(attack_type, ["No recommendation found"])
+
+# ✅ Dummy: Spoofing Simulation
+def simulate_spoofing():
+    display(Markdown("## 🎭 Simulating Spoofing Attack"))
+    fake_ips = [f"192.168.1.{random.randint(1, 255)}" for _ in range(10)]
+    print(f"Sending packets from fake IPs: {fake_ips}")
+    spoof_counts = [random.randint(10, 40) for _ in fake_ips]
+
+    plt.figure(figsize=(7, 3))
+    plt.plot(spoof_counts, marker='o', color='orange')
+    plt.title("📊 Spoofed Packet Flow")
+    plt.xlabel("Fake IP Index")
+    plt.ylabel("Packet Count")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    display(Markdown(f"🔐 **Recommended Encryption:** `{', '.join(get_recommended_encryption('Spoofing'))}`"))
+    return "Spoofing simulation completed."
+
+# ✅ Dummy: Phishing Simulation
+def simulate_phishing():
+    display(Markdown("## 🕵️ Simulating Phishing Attack"))
+    fake_emails = [f"alert@{s}.com" for s in ['bank', 'social', 'update']]
+    print("Fake phishing emails sent:")
+    for e in fake_emails:
+        print(f"📩 {e}")
+
+    counts = [random.randint(50, 120) for _ in fake_emails]
+    plt.figure(figsize=(7, 3))
+    plt.bar(fake_emails, counts, color='blue')
+    plt.title("📊 Phishing Email Open Rate")
+    plt.ylabel("Opens")
+    plt.tight_layout()
+    plt.show()
+
+    display(Markdown(f"🔐 **Recommended Encryption:** `{', '.join(get_recommended_encryption('Phishing'))}`"))
+    return "Phishing simulation completed."
+
+# ✅ Dummy: DDoS Simulation
+def simulate_ddos():
+    display(Markdown("## 🌐 Simulating DDoS Attack"))
+    print("Flooding simulated server with spoofed packets...")
+    packet_rate = [random.randint(100, 500) for _ in range(10)]
+
+    plt.figure(figsize=(7, 3))
+    plt.plot(packet_rate, marker='x', color='red')
+    plt.title("📊 DDoS Packet Rate")
+    plt.xlabel("Time Tick")
+    plt.ylabel("Packets/sec")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    display(Markdown(f"🔐 **Recommended Encryption:** `{', '.join(get_recommended_encryption('DDoS'))}`"))
+    return "DDoS simulation completed."
+
+# ✅ SQL Injection Simulation
+def simulate_sql_injection():
+    display(Markdown("## 🖥️ Simulating SQL Injection Attack"))
+    fake_payloads = ["' OR 1=1--", "' OR 'a'='a", "1; DROP TABLE users", "admin'--"]
+    target_url = f"http://vulnerable-site{random.randint(1, 50)}.com"
+    for payload in fake_payloads:
+        print(f"Injecting Payload into {target_url}: {payload}")
+
+    attack_counts = [random.randint(5, 20) for _ in fake_payloads]
+    plt.figure(figsize=(7, 3))
+    plt.bar(fake_payloads, attack_counts, color='green')
+    plt.title("📊 SQL Injection Payload Execution Attempts")
+    plt.xlabel("Payload")
+    plt.ylabel("Execution Count")
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    display(Markdown(f"🔐 **Recommended Encryption:** `{', '.join(get_recommended_encryption('SQL Injection'))}`"))
+    return "SQL Injection simulation completed."
+
+# ✅ Brute Force Attack Simulation
+def simulate_brute_force():
+    display(Markdown("## 🔐 Simulating Brute Force Attack"))
+    fake_usernames = ["admin", "root", "user123", "guest", "superuser"]
+    fake_passwords = ["password123", "123456", "letmein", "qwerty", "admin123"]
+    attempts = [(u, p) for u in fake_usernames for p in fake_passwords]
+    print(f"Attempting brute force login with {len(attempts)} combinations.")
+
+    attempt_counts = [random.randint(10, 50) for _ in attempts[:50]]
+    plt.figure(figsize=(7, 3))
+    plt.plot(attempt_counts, marker='o', color='purple')
+    plt.title("📊 Brute Force Login Attempts")
+    plt.xlabel("Attempt #")
+    plt.ylabel("Attempts Made")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    display(Markdown(f"🔐 **Recommended Encryption:** `{', '.join(get_recommended_encryption('Brute Force'))}`"))
+    return "Brute Force simulation completed."
+
+# ✅ Zero-Day Exploit Simulation
+def simulate_zero_day():
+    display(Markdown("## 💻 Simulating Zero-Day Exploit"))
+    target_vuln = f"Vulnerability-{random.randint(1, 100)}"
+    print(f"Exploiting Zero-Day: {target_vuln}")
+    exploit_count = random.randint(10, 100)
+
+    for i in range(min(exploit_count, 20)):
+        print(f"[{i+1}] Attempting exploit on {target_vuln}")
+
+    attempt_times = [random.randint(1, 100) for _ in range(exploit_count)]
+    plt.figure(figsize=(7, 3))
+    plt.plot(attempt_times, marker='x', color='brown')
+    plt.title("📊 Zero-Day Exploit Attempts")
+    plt.xlabel("Time")
+    plt.ylabel("Exploit Attempts")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    display(Markdown(f"🔐 **Recommended Encryption:** `{', '.join(get_recommended_encryption('Zero-Day Exploit'))}`"))
+    return "Zero-Day Exploit simulation completed."
+
+# ✅ Final Endpoint Security Check
+def security_check():
+    display(Markdown("## 🔒 Performing Final Endpoint Security Check"))
+
+    attack_results = {
+        "Spoofing": simulate_spoofing(),
+        "Phishing": simulate_phishing(),
+        "DDoS": simulate_ddos(),
+        "SQL Injection": simulate_sql_injection(),
+        "Brute Force": simulate_brute_force(),
+        "Zero-Day Exploit": simulate_zero_day()
+    }
+
+    for attack_name, result in attack_results.items():
+        print(f"✅ {attack_name}: {result}")
+
+    log_attack("Final Security Check", "✅ All attack simulations executed.")
+    display(Markdown("### ✅ All attacks simulated and logged."))
+
+# ✅ Run the full simulation suite
+security_check()
